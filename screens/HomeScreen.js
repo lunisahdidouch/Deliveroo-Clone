@@ -1,19 +1,36 @@
 import { View, Text, SafeAreaView, StatusBar, Image, TextInput, ScrollView } from 'react-native'
-import React, { useLayoutEffect } from 'react'
+import React, { useLayoutEffect, useState, useEffect } from 'react'
 import { useNavigation } from '@react-navigation/native'
 import { ChevronDownIcon, UserIcon, MagnifyingGlassIcon, AdjustmentsVerticalIcon } from 'react-native-heroicons/outline'
 import Categories from '../components/Categories'
 import FeaturedRow from '../components/FeaturedRow'
+import sanityClient from '../sanity'
 
 const HomeScreen = () => {
   const navigation = useNavigation()
   const statusBarHeight = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
+
+  const [featuredCategories, setFeaturedCategories] = useState([])
 
   useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: false
     })
   }, [])
+
+  useEffect(() => {
+    sanityClient.fetch(`
+    *[_type == "featured"] {
+      ...,
+      restaurants[]->{
+        ...,
+        dishes[]->
+        }
+        }`).then(data => {
+         setFeaturedCategories(data) 
+        })
+  
+  })
   return (
     <SafeAreaView style={{paddingTop: statusBarHeight + 10}} className='bg-white pt-5'>
       {/* <Text> */}
